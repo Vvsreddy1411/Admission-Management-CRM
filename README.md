@@ -1,119 +1,142 @@
 # Admission Management & CRM
 
-Admission Management & CRM is a full-stack app for managing institutions, campuses, departments, programs, academic years, quotas, applicants, and admission capacity settings.
+A minimal full-stack Admission Management system built for the EduMerge Junior Software Developer assignment.
 
-## GitHub Repository
+## Demo
 
-Repository: `https://github.com/Vvsreddy1411/Admission-Management-CRM`
+- Local demo: run the app locally using the steps below
+- Default frontend URL: `http://localhost:8080`
+- Default backend URL: `http://localhost:4000`
+- Health check: `http://localhost:4000/api/health`
+
+## Features Covered
+
+- Master setup for:
+  - Institution
+  - Campus
+  - Department
+  - Program / Branch
+  - Academic Year
+  - Course Type
+  - Entry Type
+  - Admission Mode
+- Quota configuration with intake validation
+- Program-wise seat matrix with quota counters
+- Optional institution-level caps
+- Applicant creation with a minimal form
+- Government and Management admission flows
+- Seat allocation with quota validation
+- Admission confirmation with immutable admission numbers
+- Document and fee status tracking
+- Basic dashboard with:
+  - Total intake vs admitted
+  - Quota-wise filled seats
+  - Remaining seats
+  - Pending documents list
+  - Fee pending list
+- Role-based access for:
+  - Admin
+  - Admission Officer
+  - Management
+
+## Assignment Rules Implemented
+
+- Quota seats cannot exceed program intake
+- Base quota total must match intake before seat allocation
+- No seat allocation when quota is full
+- Institution cap blocks allocation when full
+- Admission confirmation only after fee is marked `Paid`
+- Admission number is generated only once during confirmation
+- Admission number format: `INST/YEAR/COURSE/PROGRAM/QUOTA/0001`
 
 ## Tech Stack
 
-- Frontend: React + Vite
+- Frontend: React + Vite + Tailwind
 - Backend: Node.js + Express
 - Database: MongoDB
 
 ## Prerequisites
 
-- Node.js 18+ (recommended: Node.js 20 LTS)
+- Node.js 18+ (Node.js 20 recommended)
 - npm 9+
-- A MongoDB connection string
+- MongoDB connection string
 
-## 1) Clone and Install
+## Setup
+
+1. Clone the repository
 
 ```bash
 git clone https://github.com/Vvsreddy1411/Admission-Management-CRM.git
 cd Admission-Management-CRM
+```
+
+2. Install dependencies
+
+```bash
 npm install
 ```
 
-## 2) Configure Environment Variables
-
-Create `backend/.env` with the following values:
+3. Create `backend/.env`
 
 ```env
-MONGODB_URI=mongodb+srv://vvsreenivasareddy12_db_user:gIjQ6Sd7VJqR4xCY@cluster0.mxvpnfu.mongodb.net/?appName=Cluster0
+MONGODB_URI=your_mongodb_connection_string
 DB_NAME=campus_connect
 PORT=4000
 ```
 
-## 3) Run the Project (Frontend + Backend)
+4. Run the app
 
 ```bash
 npm run dev
 ```
 
-Default URLs:
+## Login Roles
 
-- Frontend: `http://localhost:8080`
-- Backend API: `http://localhost:4000`
-- Health check: `http://localhost:4000/api/health`
+Use any display name and choose one of these roles on the login page:
+
+- `Admin`: manage masters, quotas, caps, applicants, and admissions
+- `Admission Officer`: manage applicants and admissions
+- `Management`: dashboard-only view
+
+## Suggested Demo Flow
+
+1. Login as `Admin`
+2. Review or add master setup records
+3. Configure quotas so base quota total equals intake
+4. Create an applicant
+5. Login as `Admission Officer`
+6. Allocate seat
+7. Mark documents submitted / verified
+8. Mark fee paid
+9. Confirm admission and verify the generated admission number
+10. Login as `Management` and view the dashboard
 
 ## Available Scripts
 
-- `npm run dev` - Runs backend and frontend together
-- `npm run dev:backend` - Runs Express backend only
-- `npm run dev:frontend` - Runs Vite frontend only
-- `npm run build` - Production build
-- `npm run preview` - Preview production build
-- `npm run test` - Run test suite once
-- `npm run test:watch` - Run tests in watch mode
-- `npm run lint` - Run ESLint
+- `npm run dev` - run frontend and backend together
+- `npm run dev:frontend` - run Vite frontend
+- `npm run dev:backend` - run Express backend
+- `npm run build` - create production build
+- `npm run test` - run tests once
+- `npm run lint` - run ESLint
 
-## Project Workflow (Page-by-Page)
+## AI Assistance Disclosure
 
-Use the application in this recommended order for a complete admission lifecycle:
+AI tools were used during development.
 
-1. Login
-- Choose role and sign in.
-- `Admin` can configure masters, quotas, caps, applicants, and admissions.
-- `Admission Officer` can manage applicants and admissions.
-- `Management` has view-only access.
-
-2. Dashboard (`/`)
-- Quick overview of applicants, programs, and quota utilization.
-- Use this page to monitor current status after setup and admissions activity.
-
-3. Master Setup (`/master-setup`)
-- Configure base masters required for all downstream flows:
-  - Institutions
-  - Campuses (linked to Institution)
-  - Departments (linked to Campus)
-  - Programs (linked to Department, includes course type and intake)
-  - Academic Years
-- This is the foundation page and should be completed first.
-
-4. Quota Config (`/quota-config`)
-- Define quota buckets per program (KCET, COMEDK, Management, Supernumerary, etc.).
-- Set total seats and initialize filled seats.
-- Admissions allocation depends on these entries.
-
-5. Institution Caps (`/institution-caps`)
-- Configure cross-program caps at institution level (example: J&K, NRI, Defense).
-- Used when certain seat limits must apply across multiple programs.
-
-6. Seat Matrix (`/seat-matrix`)
-- View and maintain quota seat distribution program-wise.
-- Track quota utilization and adjust configuration if needed.
-
-7. Applicants (`/applicants`)
-- Create and manage applicant records with demographic, exam, and program details.
-- Applicant creation checks quota availability before adding.
-- Document, fee, and admission status are tracked here.
-
-8. Admissions (`/admissions`)
-- Allocate/confirm seats for applicants based on selected quota and optional institution cap.
-- Updates quota filled seats and institution cap filled seats.
-- Generates/uses admission references for final admission workflow.
-
-## Data Relationship Flow
-
-- Institution -> Campus -> Department -> Program
-- Program -> Quotas
-- Institution -> Institution Caps
-- Applicant -> Program (+ Quota Type, optional Institution Cap)
-- Admissions allocation updates Quotas and Institution Caps seat usage
+- Tool used: OpenAI Codex / ChatGPT-style assistance
+- AI-assisted work:
+  - requirement gap analysis against the assignment
+  - refactoring and hardening backend validation
+  - frontend updates for role guards and workflow alignment
+  - README drafting and documentation cleanup
+- Human-driven work:
+  - reviewing the assignment requirements
+  - validating implementation choices
+  - checking project structure and feature mapping
 
 ## Notes
 
-- Frontend requests are proxied from Vite (`/api`) to `http://localhost:4000`.
-- Make sure MongoDB is reachable before starting the backend.
+- This is intentionally a minimal assignment submission, not a production ERP.
+- The app seeds demo data on startup if the database is empty.
+- Vite proxies `/api` requests to the Express backend in local development.

@@ -1,165 +1,156 @@
 import { useMemo } from "react";
-import { PageHeader } from "@/components/PageHeader";
 import {
-  Users,
-  GraduationCap,
-  BarChart3,
   AlertCircle,
-  IndianRupee,
+  BarChart3,
   FileWarning,
+  GraduationCap,
+  IndianRupee,
+  Users,
 } from "lucide-react";
-import { KEYS } from "@/lib/store";
-import { useStore } from "@/hooks/useStore";
 import {
-  BarChart,
   Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
 } from "recharts";
+import { PageHeader } from "@/components/PageHeader";
+import { KEYS } from "@/lib/store";
+import { useStore } from "@/hooks/useStore";
 
 const CHART_COLORS = [
   "hsl(200, 80%, 40%)",
   "hsl(160, 60%, 42%)",
   "hsl(38, 92%, 50%)",
-  "hsl(280, 60%, 50%)",
   "hsl(350, 70%, 55%)",
 ];
 
 export default function Dashboard() {
-  const { items: applicantsRaw, loading: applicantsLoading } = useStore(
-    KEYS.applicants
+  const { items: applicants = [], loading: applicantsLoading } = useStore(
+    KEYS.applicants,
   );
-  const { items: programsRaw, loading: programsLoading } = useStore(
-    KEYS.programs
+  const { items: programs = [], loading: programsLoading } = useStore(
+    KEYS.programs,
   );
-  const { items: quotasRaw, loading: quotasLoading } = useStore(
-    KEYS.quotas
-  );
+  const { items: quotas = [], loading: quotasLoading } = useStore(KEYS.quotas);
 
-  const applicants = Array.isArray(applicantsRaw) ? applicantsRaw : [];
-  const programs = Array.isArray(programsRaw) ? programsRaw : [];
-  const quotas = Array.isArray(quotasRaw) ? quotasRaw : [];
   const loading = applicantsLoading || programsLoading || quotasLoading;
 
-  const stats = useMemo(
-    () => ({
+  const stats = useMemo(() => {
+    const totalIntake = programs.reduce(
+      (sum, program) => sum + (program.totalIntake || 0),
+      0,
+    );
+    const totalAdmitted = applicants.filter(
+      (applicant) => applicant.admissionStatus === "Confirmed",
+    ).length;
+    const pendingFees = applicants.filter(
+      (applicant) =>
+        applicant.feeStatus === "Pending" &&
+        applicant.admissionStatus !== "Applied",
+    );
+    const pendingDocs = applicants.filter(
+      (applicant) => applicant.documentStatus !== "Verified",
+    );
+
+    return {
       totalApplicants: applicants.length,
-      totalAdmitted: applicants.filter(
-        (a) => a?.admissionStatus === "Confirmed"
-      ).length,
-      pendingFees: applicants.filter(
-        (a) =>
-          a?.feeStatus === "Pending" &&
-          a?.admissionStatus !== "Applied"
-      ).length,
-      pendingDocs: applicants.filter(
-        (a) => a?.documentStatus !== "Verified"
-      ).length,
-    }),
-    [applicants]
-  );
+      totalIntake,
+      totalAdmitted,
+      pendingFees,
+      pendingDocs,
+    };
+  }, [applicants, programs]);
 
   const quotaData = useMemo(() => {
     const quotaMap = {};
 
-    quotas.forEach((q) => {
-      if (!q) return;
-
-      if (!quotaMap[q.type]) {
-        quotaMap[q.type] = { filled: 0, total: 0 };
+    quotas.forEach((quota) => {
+      if (!quotaMap[quota.type]) {
+        quotaMap[quota.type] = { filled: 0, total: 0 };
       }
 
-      quotaMap[q.type].filled += q.filledSeats || 0;
-      quotaMap[q.type].total += q.totalSeats || 0;
+      quotaMap[quota.type].filled += quota.filledSeats || 0;
+      quotaMap[quota.type].total += quota.totalSeats || 0;
     });
 
-    return Object.entries(quotaMap).map(([name, val]) => ({
+    return Object.entries(quotaMap).map(([name, value]) => ({
       name,
-      filled: val.filled,
-      remaining: val.total - val.filled,
-      total: val.total,
+      filled: value.filled,
+      total: value.total,
+      remaining: value.total - value.filled,
     }));
   }, [quotas]);
 
   const programData = useMemo(
     () =>
-      programs.map((p) => {
-        const pQuotas = quotas.filter(
-          (q) => q?.programId === p?.id
+      programs.map((program) => {
+        const programQuotas = quotas.filter(
+          (quota) => quota.programId === program.id,
         );
-
-        const filled = pQuotas.reduce(
-          (sum, q) => sum + (q?.filledSeats || 0),
-          0
+        const filled = programQuotas.reduce(
+          (sum, quota) => sum + (quota.filledSeats || 0),
+          0,
         );
 
         return {
-          name: p?.code || "N/A",
-          intake: p?.totalIntake || 0,
+          name: program.code,
+          intake: program.totalIntake || 0,
           filled,
-          remaining: (p?.totalIntake || 0) - filled,
+          remaining: (program.totalIntake || 0) - filled,
         };
       }),
-    [programs, quotas]
+    [programs, quotas],
   );
 
   const recentApplicants = useMemo(
     () => applicants.slice(-10).reverse(),
-    [applicants]
+    [applicants],
   );
 
-  const statCards = useMemo(() => {
-    const admittedPct = stats.totalApplicants
-      ? Math.round((stats.totalAdmitted / stats.totalApplicants) * 100)
-      : 0;
-    const pendingActions = stats.pendingFees + stats.pendingDocs;
-
-    return [
-      {
-        title: "Total Applicants",
-        value: stats.totalApplicants,
-        icon: Users,
-        note: "All applications received",
-        tone: "text-primary bg-primary/10",
-      },
-      {
-        title: "Admitted",
-        value: stats.totalAdmitted,
-        icon: GraduationCap,
-        note: `${admittedPct}% conversion so far`,
-        tone: "text-success bg-success/10",
-      },
-      {
-        title: "Fee Pending",
-        value: stats.pendingFees,
-        icon: IndianRupee,
-        note: "Allocated/confirmed with unpaid fee",
-        tone: "text-warning bg-warning/10",
-      },
-      {
-        title: "Docs Pending",
-        value: stats.pendingDocs,
-        icon: FileWarning,
-        note: `${pendingActions} total actions pending`,
-        tone: "text-destructive bg-destructive/10",
-      },
-    ];
-  }, [stats]);
+  const statCards = [
+    {
+      title: "Total Applicants",
+      value: stats.totalApplicants,
+      note: "All applications captured",
+      icon: Users,
+      tone: "text-primary bg-primary/10",
+    },
+    {
+      title: "Intake vs Admitted",
+      value: `${stats.totalAdmitted}/${stats.totalIntake}`,
+      note: "Confirmed admissions against total intake",
+      icon: GraduationCap,
+      tone: "text-success bg-success/10",
+    },
+    {
+      title: "Fee Pending",
+      value: stats.pendingFees.length,
+      note: "Allocated or confirmed with unpaid fee",
+      icon: IndianRupee,
+      tone: "text-warning bg-warning/10",
+    },
+    {
+      title: "Docs Pending",
+      value: stats.pendingDocs.length,
+      note: "Applicants awaiting submission or verification",
+      icon: FileWarning,
+      tone: "text-destructive bg-destructive/10",
+    },
+  ];
 
   return (
     <div className="space-y-8 animate-fade-in">
       <PageHeader
         title="Dashboard"
-        subtitle="Admission overview and analytics"
+        subtitle="Admission overview, quota tracking, and pending action lists"
       />
 
-      {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5">
         {statCards.map((card) => (
           <div
@@ -175,24 +166,20 @@ export default function Dashboard() {
                   {card.value}
                 </p>
               </div>
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${card.tone}`}>
+              <div
+                className={`w-10 h-10 rounded-xl flex items-center justify-center ${card.tone}`}
+              >
                 <card.icon className="w-5 h-5" />
               </div>
             </div>
-            <p className="text-xs text-muted-foreground">
-              {card.note}
-            </p>
+            <p className="text-xs text-muted-foreground">{card.note}</p>
           </div>
         ))}
       </div>
 
-      {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Bar Chart */}
         <div className="glass-card p-6">
-          <h3 className="font-semibold text-lg mb-4">
-            Program-wise Seat Status
-          </h3>
+          <h3 className="font-semibold text-lg mb-4">Program-wise Seat Status</h3>
 
           {programData.length > 0 ? (
             <ResponsiveContainer width="100%" height={280}>
@@ -201,13 +188,7 @@ export default function Dashboard() {
                 <XAxis dataKey="name" />
                 <YAxis />
                 <Tooltip />
-
-                <Bar
-                  dataKey="filled"
-                  stackId="a"
-                  name="Filled"
-                  fill="hsl(202, 89%, 45%)"
-                />
+                <Bar dataKey="filled" stackId="a" name="Filled" fill="hsl(202, 89%, 45%)" />
                 <Bar
                   dataKey="remaining"
                   stackId="a"
@@ -221,11 +202,8 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* Pie Chart */}
         <div className="glass-card p-6">
-          <h3 className="font-semibold text-lg mb-4">
-            Quota Distribution
-          </h3>
+          <h3 className="font-semibold text-lg mb-4">Quota-wise Filled Seats</h3>
 
           {quotaData.length > 0 ? (
             <div className="flex items-center gap-6">
@@ -233,15 +211,15 @@ export default function Dashboard() {
                 <PieChart>
                   <Pie
                     data={quotaData}
-                    dataKey="total"
+                    dataKey="filled"
                     nameKey="name"
                     outerRadius={90}
                     innerRadius={50}
                   >
-                    {quotaData.map((_, i) => (
+                    {quotaData.map((item, index) => (
                       <Cell
-                        key={i}
-                        fill={CHART_COLORS[i % CHART_COLORS.length]}
+                        key={item.name}
+                        fill={CHART_COLORS[index % CHART_COLORS.length]}
                       />
                     ))}
                   </Pie>
@@ -250,14 +228,11 @@ export default function Dashboard() {
               </ResponsiveContainer>
 
               <div className="flex-1 space-y-2">
-                {quotaData.map((q) => (
-                  <div
-                    key={q.name}
-                    className="flex justify-between text-sm"
-                  >
-                    <span>{q.name}</span>
+                {quotaData.map((quota) => (
+                  <div key={quota.name} className="flex justify-between text-sm">
+                    <span>{quota.name}</span>
                     <span>
-                      {q.filled}/{q.total}
+                      {quota.filled}/{quota.total} filled
                     </span>
                   </div>
                 ))}
@@ -269,16 +244,31 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Recent Applicants */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        <PendingActionCard
+          title="Applicants With Pending Documents"
+          applicants={stats.pendingDocs}
+          programs={programs}
+          field="documentStatus"
+          emptyText="No applicants are waiting on documents."
+        />
+        <PendingActionCard
+          title="Fee Pending List"
+          applicants={stats.pendingFees}
+          programs={programs}
+          field="feeStatus"
+          emptyText="No allocated applicants have pending fees."
+        />
+      </div>
+
       <div className="glass-card p-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-semibold text-lg">
-            Recent Applicants
-          </h3>
+          <h3 className="font-semibold text-lg">Recent Applicants</h3>
           <span className="text-xs text-muted-foreground">
             Last {Math.min(recentApplicants.length, 10)} records
           </span>
         </div>
+
         <RecentApplicantsTable
           applicants={recentApplicants}
           programs={programs}
@@ -289,7 +279,40 @@ export default function Dashboard() {
   );
 }
 
-/* ------------------ TABLE ------------------ */
+function PendingActionCard({ title, applicants, programs, field, emptyText }) {
+  return (
+    <div className="glass-card p-6">
+      <h3 className="font-semibold text-lg mb-4">{title}</h3>
+
+      {applicants.length === 0 ? (
+        <p className="text-sm text-muted-foreground">{emptyText}</p>
+      ) : (
+        <div className="space-y-3">
+          {applicants.slice(0, 8).map((applicant) => {
+            const program = programs.find((item) => item.id === applicant.programId);
+
+            return (
+              <div
+                key={applicant.id}
+                className="flex items-center justify-between rounded-xl border border-border/60 p-3"
+              >
+                <div>
+                  <p className="font-medium text-foreground">{applicant.name}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {program?.name || "Unknown Program"} • {applicant.quotaType}
+                  </p>
+                </div>
+                <span className="text-xs rounded-full bg-muted px-2.5 py-1">
+                  {applicant[field]}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
 
 function RecentApplicantsTable({ applicants, programs, loading }) {
   if (loading && applicants.length === 0) {
@@ -313,67 +336,59 @@ function RecentApplicantsTable({ applicants, programs, loading }) {
       <table className="w-full text-sm">
         <thead className="bg-muted/40">
           <tr className="border-b border-border/60">
-            <th className="sticky top-0 z-10 bg-muted/95 backdrop-blur text-left font-medium text-xs uppercase tracking-wide text-muted-foreground px-4 py-3">
-              Applicant
-            </th>
-            <th className="sticky top-0 z-10 bg-muted/95 backdrop-blur text-left font-medium text-xs uppercase tracking-wide text-muted-foreground px-4 py-3">
-              Program
-            </th>
-            <th className="sticky top-0 z-10 bg-muted/95 backdrop-blur text-left font-medium text-xs uppercase tracking-wide text-muted-foreground px-4 py-3">
-              Quota
-            </th>
-            <th className="sticky top-0 z-10 bg-muted/95 backdrop-blur text-left font-medium text-xs uppercase tracking-wide text-muted-foreground px-4 py-3">
-              Status
-            </th>
-            <th className="sticky top-0 z-10 bg-muted/95 backdrop-blur text-left font-medium text-xs uppercase tracking-wide text-muted-foreground px-4 py-3">
-              Docs
-            </th>
-            <th className="sticky top-0 z-10 bg-muted/95 backdrop-blur text-left font-medium text-xs uppercase tracking-wide text-muted-foreground px-4 py-3">
-              Fee
-            </th>
+            {["Applicant", "Program", "Quota", "Status", "Docs", "Fee"].map(
+              (header) => (
+                <th
+                  key={header}
+                  className="sticky top-0 z-10 bg-muted/95 backdrop-blur text-left font-medium text-xs uppercase tracking-wide text-muted-foreground px-4 py-3"
+                >
+                  {header}
+                </th>
+              ),
+            )}
           </tr>
         </thead>
 
         <tbody>
-          {applicants.map((a) => {
-            const prog = programs.find((p) => p?.id === a?.programId);
+          {applicants.map((applicant) => {
+            const program = programs.find(
+              (item) => item.id === applicant.programId,
+            );
 
             return (
               <tr
-                key={a.id}
+                key={applicant.id}
                 className="border-b border-border/40 last:border-b-0 hover:bg-muted/20 transition-colors"
               >
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-primary/10 text-primary text-xs font-semibold flex items-center justify-center">
-                      {a?.name?.slice(0, 2).toUpperCase() || "NA"}
+                      {applicant.name?.slice(0, 2).toUpperCase() || "NA"}
                     </div>
                     <div className="min-w-0">
                       <p className="font-medium text-foreground truncate">
-                        {a?.name}
+                        {applicant.name}
                       </p>
                       <p className="text-xs text-muted-foreground truncate">
-                        {a?.email || "-"}
+                        {applicant.email || "-"}
                       </p>
                     </div>
                   </div>
                 </td>
                 <td className="px-4 py-3 text-muted-foreground">
-                  {prog?.name || "-"}
+                  {program?.name || "-"}
                 </td>
                 <td className="px-4 py-3">
-                  <span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-xs">
-                    {a?.quotaType || "-"}
-                  </span>
+                  <StatusPill value={applicant.quotaType} />
                 </td>
                 <td className="px-4 py-3">
-                  <StatusPill type="admission" value={a?.admissionStatus} />
+                  <StatusPill type="admission" value={applicant.admissionStatus} />
                 </td>
                 <td className="px-4 py-3">
-                  <StatusPill type="document" value={a?.documentStatus} />
+                  <StatusPill type="document" value={applicant.documentStatus} />
                 </td>
                 <td className="px-4 py-3">
-                  <StatusPill type="fee" value={a?.feeStatus} />
+                  <StatusPill type="fee" value={applicant.feeStatus} />
                 </td>
               </tr>
             );
@@ -406,13 +421,13 @@ function StatusPill({ type, value }) {
   }
 
   return (
-    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${cls}`}>
+    <span
+      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${cls}`}
+    >
       {text}
     </span>
   );
 }
-
-/* ------------------ EMPTY STATE ------------------ */
 
 function EmptyState({ icon: Icon, text }) {
   return (

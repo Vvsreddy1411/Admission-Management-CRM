@@ -109,13 +109,18 @@ function AddQuotaDialog({ programId, onAdd }) {
             toast.error("Enter valid seats");
             return;
         }
-        await addItem({ programId, type, totalSeats: parseInt(seats), filledSeats: 0 });
-        setSeats("");
-        setOpen(false);
-        if (onAdd) {
-            await onAdd();
+        try {
+            await addItem({ programId, type, totalSeats: parseInt(seats), filledSeats: 0 });
+            setSeats("");
+            setOpen(false);
+            if (onAdd) {
+                await onAdd();
+            }
+            toast.success("Quota added");
         }
-        toast.success("Quota added");
+        catch (error) {
+            toast.error(error?.message || "Failed to add quota");
+        }
     };
     return (<Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild><Button size="sm" variant="outline"><Plus className="w-4 h-4 mr-2"/> Add Quota</Button></DialogTrigger>

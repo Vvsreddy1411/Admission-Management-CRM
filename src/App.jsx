@@ -28,8 +28,9 @@ function AppRoutes() {
             console.error("Seed data failed:", error);
         });
     }, []);
+    // Avoid blank screen while session check is in-flight.
     if (loading) {
-        return null;
+        return <LoginPage />;
     }
     if (!isLoggedIn) {
         return <LoginPage />;

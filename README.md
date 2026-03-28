@@ -2,6 +2,10 @@
 
 Admission Management & CRM is a full-stack app for managing institutions, campuses, departments, programs, academic years, quotas, applicants, and admission capacity settings.
 
+## GitHub Repository
+
+Repository: `https://github.com/Vvsreddy1411/Admission-Management-CRM`
+
 ## Tech Stack
 
 - Frontend: React + Vite
@@ -17,7 +21,7 @@ Admission Management & CRM is a full-stack app for managing institutions, campus
 ## 1) Clone and Install
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/Vvsreddy1411/Admission-Management-CRM.git
 cd Admission-Management-CRM
 npm install
 ```

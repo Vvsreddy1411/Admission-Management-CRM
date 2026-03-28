@@ -56,6 +56,10 @@ export async function createApp() {
     return db.collection(key);
   }
 
+  app.get("/", (_req, res) => {
+    res.json({ ok: true, message: "Backend is running", health: "/api/health" });
+  });
+
   app.get("/api/health", (_, res) => {
     res.json({ ok: true });
   });

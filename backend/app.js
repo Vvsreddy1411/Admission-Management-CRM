@@ -508,6 +508,14 @@ export async function createApp() {
     res.json({ ok: true });
   });
 
+  app.get("/", (_req, res) => {
+    res.status(200).json({
+      ok: true,
+      service: "Admission Management CRM Backend",
+      health: "/api/health",
+    });
+  });
+
   app.get("/api/user-session", async (_req, res, next) => {
     try {
       const doc = await db.collection(SESSION_COLLECTION).findOne({ id: "session" });

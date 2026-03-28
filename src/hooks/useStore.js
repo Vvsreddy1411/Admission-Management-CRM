@@ -4,10 +4,18 @@ import { getAll, add, update, remove } from "@/lib/store";
 export function useStore(key) {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const refresh = useCallback(async () => {
-    const data = await getAll(key);
-    setItems(data);
+    try {
+      const data = await getAll(key);
+      setItems(data);
+      setError(null);
+      return data;
+    } catch (err) {
+      setError(err);
+      throw err;
+    }
   }, [key]);
 
   useEffect(() => {
@@ -17,6 +25,11 @@ export function useStore(key) {
         const data = await getAll(key);
         if (mounted) {
           setItems(data);
+          setError(null);
+        }
+      } catch (err) {
+        if (mounted) {
+          setError(err);
         }
       } finally {
         if (mounted) setLoading(false);
@@ -29,30 +42,45 @@ export function useStore(key) {
 
   const addItem = useCallback(
     async (item) => {
-      const newItem = await add(key, item);
-      await refresh();
-      return newItem;
+      try {
+        const newItem = await add(key, item);
+        await refresh();
+        return newItem;
+      } catch (err) {
+        setError(err);
+        throw err;
+      }
     },
     [key, refresh],
   );
 
   const updateItem = useCallback(
     async (id, updates) => {
-      const updated = await update(key, id, updates);
-      await refresh();
-      return updated;
+      try {
+        const updated = await update(key, id, updates);
+        await refresh();
+        return updated;
+      } catch (err) {
+        setError(err);
+        throw err;
+      }
     },
     [key, refresh],
   );
 
   const removeItem = useCallback(
     async (id) => {
-      await remove(key, id);
-      await refresh();
+      try {
+        await remove(key, id);
+        await refresh();
+      } catch (err) {
+        setError(err);
+        throw err;
+      }
     },
     [key, refresh],
   );
 
-  return { items, addItem, updateItem, removeItem, refresh, loading };
+  return { items, addItem, updateItem, removeItem, refresh, loading, error };
 }
 

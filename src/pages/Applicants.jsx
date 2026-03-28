@@ -135,31 +135,36 @@ function AddApplicantDialog({ programs, onAdd }) {
     });
     const set = (key, value) => setForm(f => ({ ...f, [key]: value }));
     const handleSubmit = async () => {
-        if (!form.name || !form.email || !form.programId) {
-            toast.error("Name, email, and program are required");
-            return;
+        try {
+            if (!form.name || !form.email || !form.programId) {
+                toast.error("Name, email, and program are required");
+                return;
+            }
+            const avail = await checkQuotaAvailability(form.programId, form.quotaType);
+            if (!avail.available) {
+                toast.error(`No seats available for ${form.quotaType} quota`);
+                return;
+            }
+            await addItem({
+                ...form,
+                institutionCapId: form.institutionCapId === 'none' ? '' : form.institutionCapId,
+                marks: parseInt(form.marks) || 0,
+                documentStatus: 'Pending',
+                feeStatus: 'Pending',
+                admissionStatus: 'Applied',
+                isSupernumerary: form.quotaType === 'Supernumerary',
+                createdAt: new Date().toISOString(),
+            });
+            setOpen(false);
+            if (onAdd) {
+                await onAdd();
+            }
+            toast.success("Applicant created");
+            setForm({ name: '', email: '', phone: '', dateOfBirth: '', gender: 'Male', category: 'GM', address: '', qualifyingExam: '', marks: '', entryType: 'Regular', admissionMode: 'Government', quotaType: 'KCET', programId: '', allotmentNumber: '', institutionCapId: '' });
         }
-        const avail = await checkQuotaAvailability(form.programId, form.quotaType);
-        if (!avail.available) {
-            toast.error(`No seats available for ${form.quotaType} quota`);
-            return;
+        catch (error) {
+            toast.error(error?.message || "Failed to create applicant");
         }
-        await addItem({
-            ...form,
-            institutionCapId: form.institutionCapId === 'none' ? '' : form.institutionCapId,
-            marks: parseInt(form.marks) || 0,
-            documentStatus: 'Pending',
-            feeStatus: 'Pending',
-            admissionStatus: 'Applied',
-            isSupernumerary: form.quotaType === 'Supernumerary',
-            createdAt: new Date().toISOString(),
-        });
-        setOpen(false);
-        if (onAdd) {
-            await onAdd();
-        }
-        toast.success("Applicant created");
-        setForm({ name: '', email: '', phone: '', dateOfBirth: '', gender: 'Male', category: 'GM', address: '', qualifyingExam: '', marks: '', entryType: 'Regular', admissionMode: 'Government', quotaType: 'KCET', programId: '', allotmentNumber: '', institutionCapId: '' });
     };
     return (<Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild><Button><Plus className="w-4 h-4 mr-2"/> New Applicant</Button></DialogTrigger>

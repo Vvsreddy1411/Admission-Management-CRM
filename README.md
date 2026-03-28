@@ -59,6 +59,60 @@ Default URLs:
 - `npm run test:watch` - Run tests in watch mode
 - `npm run lint` - Run ESLint
 
+## Project Workflow (Page-by-Page)
+
+Use the application in this recommended order for a complete admission lifecycle:
+
+1. Login
+- Choose role and sign in.
+- `Admin` can configure masters, quotas, caps, applicants, and admissions.
+- `Admission Officer` can manage applicants and admissions.
+- `Management` has view-only access.
+
+2. Dashboard (`/`)
+- Quick overview of applicants, programs, and quota utilization.
+- Use this page to monitor current status after setup and admissions activity.
+
+3. Master Setup (`/master-setup`)
+- Configure base masters required for all downstream flows:
+  - Institutions
+  - Campuses (linked to Institution)
+  - Departments (linked to Campus)
+  - Programs (linked to Department, includes course type and intake)
+  - Academic Years
+- This is the foundation page and should be completed first.
+
+4. Quota Config (`/quota-config`)
+- Define quota buckets per program (KCET, COMEDK, Management, Supernumerary, etc.).
+- Set total seats and initialize filled seats.
+- Admissions allocation depends on these entries.
+
+5. Institution Caps (`/institution-caps`)
+- Configure cross-program caps at institution level (example: J&K, NRI, Defense).
+- Used when certain seat limits must apply across multiple programs.
+
+6. Seat Matrix (`/seat-matrix`)
+- View and maintain quota seat distribution program-wise.
+- Track quota utilization and adjust configuration if needed.
+
+7. Applicants (`/applicants`)
+- Create and manage applicant records with demographic, exam, and program details.
+- Applicant creation checks quota availability before adding.
+- Document, fee, and admission status are tracked here.
+
+8. Admissions (`/admissions`)
+- Allocate/confirm seats for applicants based on selected quota and optional institution cap.
+- Updates quota filled seats and institution cap filled seats.
+- Generates/uses admission references for final admission workflow.
+
+## Data Relationship Flow
+
+- Institution -> Campus -> Department -> Program
+- Program -> Quotas
+- Institution -> Institution Caps
+- Applicant -> Program (+ Quota Type, optional Institution Cap)
+- Admissions allocation updates Quotas and Institution Caps seat usage
+
 ## Notes
 
 - Frontend requests are proxied from Vite (`/api`) to `http://localhost:4000`.

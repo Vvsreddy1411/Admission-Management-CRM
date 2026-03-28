@@ -18,9 +18,11 @@ export default function Applicants() {
     const [filterStatus, setFilterStatus] = useState("all");
     const [viewApplicant, setViewApplicant] = useState(null);
     const filtered = applicants.filter(a => {
-        const matchesSearch = a.name.toLowerCase().includes(search.toLowerCase()) ||
-            a.email.toLowerCase().includes(search.toLowerCase());
-        const matchesStatus = filterStatus === "all" || a.admissionStatus === filterStatus;
+        const name = (a?.name ?? "").toString().toLowerCase();
+        const email = (a?.email ?? "").toString().toLowerCase();
+        const matchesSearch = name.includes(search.toLowerCase()) ||
+            email.includes(search.toLowerCase());
+        const matchesStatus = filterStatus === "all" || a?.admissionStatus === filterStatus;
         return matchesSearch && matchesStatus;
     });
     return (<div className="animate-fade-in">
@@ -61,8 +63,8 @@ export default function Applicants() {
             const prog = programs.find(p => p.id === a.programId);
             return (<motion.tr key={a.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ delay: i * 0.02 }} className="border-b border-border/50 hover:bg-muted/20 transition-colors">
                       <td className="py-3 px-4">
-                        <p className="font-medium text-foreground">{a.name}</p>
-                        <p className="text-xs text-muted-foreground">{a.email}</p>
+                        <p className="font-medium text-foreground">{a.name || '-'}</p>
+                        <p className="text-xs text-muted-foreground">{a.email || '-'}</p>
                       </td>
                       <td className="py-3 px-4 text-muted-foreground">{a.category}</td>
                       <td className="py-3 px-4">

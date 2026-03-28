@@ -64,18 +64,30 @@ export async function remove(key, id) {
 
 // User session management
 export async function getUserSession() {
-  return request("/api/user-session");
+  try {
+    return await request("/api/user-session");
+  } catch {
+    return null;
+  }
 }
 
 export async function setUserSession(session) {
-  return request("/api/user-session", {
-    method: "POST",
-    body: JSON.stringify(session),
-  });
+  try {
+    return await request("/api/user-session", {
+      method: "POST",
+      body: JSON.stringify(session),
+    });
+  } catch {
+    return null;
+  }
 }
 
 export async function clearUserSession() {
-  await request("/api/user-session", { method: "DELETE" });
+  try {
+    await request("/api/user-session", { method: "DELETE" });
+  } catch {
+    // Ignore logout persistence failures when backend is unavailable.
+  }
 }
 
 // Role-based permission checks

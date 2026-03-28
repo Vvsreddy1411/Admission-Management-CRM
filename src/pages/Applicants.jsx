@@ -12,8 +12,8 @@ import { KEYS, checkQuotaAvailability } from "@/lib/store";
 import { Plus, Search, Filter, Eye } from "lucide-react";
 import { toast } from "sonner";
 export default function Applicants() {
-    const { items: programs } = useStore(KEYS.programs);
-    const { items: applicants, addItem, refresh } = useStore(KEYS.applicants);
+    const { items: programs = [] } = useStore(KEYS.programs);
+    const { items: applicants = [], refresh } = useStore(KEYS.applicants);
     const [search, setSearch] = useState("");
     const [filterStatus, setFilterStatus] = useState("all");
     const [viewApplicant, setViewApplicant] = useState(null);
@@ -123,7 +123,7 @@ export default function Applicants() {
 function AddApplicantDialog({ programs, onAdd }) {
     const [open, setOpen] = useState(false);
     const { addItem } = useStore(KEYS.applicants);
-    const { items: instCaps } = useStore(KEYS.institutionCaps);
+    const { items: instCaps = [] } = useStore(KEYS.institutionCaps);
     const [form, setForm] = useState({
         name: '', email: '', phone: '', dateOfBirth: '', gender: 'Male',
         category: 'GM', address: '', qualifyingExam: '', marks: '',
@@ -144,6 +144,7 @@ function AddApplicantDialog({ programs, onAdd }) {
         }
         await addItem({
             ...form,
+            institutionCapId: form.institutionCapId === 'none' ? '' : form.institutionCapId,
             marks: parseInt(form.marks) || 0,
             documentStatus: 'Pending',
             feeStatus: 'Pending',

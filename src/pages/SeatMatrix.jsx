@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
 import { useStore } from "@/hooks/useStore";
 import { KEYS } from "@/lib/store";
@@ -120,7 +120,10 @@ function AddQuotaDialog({ programId, onAdd }) {
     return (<Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild><Button size="sm" variant="outline"><Plus className="w-4 h-4 mr-2"/> Add Quota</Button></DialogTrigger>
       <DialogContent>
-        <DialogHeader><DialogTitle>Add Quota</DialogTitle></DialogHeader>
+        <DialogHeader>
+          <DialogTitle>Add Quota</DialogTitle>
+          <DialogDescription>Add quota seats for this program to track allocation and utilization.</DialogDescription>
+        </DialogHeader>
         <div className="space-y-4">
           <div><Label>Quota Type</Label>
             <Select value={type} onValueChange={(v) => setType(v)}>

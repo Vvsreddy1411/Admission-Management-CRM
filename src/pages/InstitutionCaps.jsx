@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
 import { useStore } from "@/hooks/useStore";
 import { KEYS } from "@/lib/store";
@@ -36,7 +36,10 @@ export default function InstitutionCaps() {
               <Button size="sm"><Plus className="w-4 h-4 mr-2"/> Add Cap</Button>
             </DialogTrigger>
             <DialogContent>
-              <DialogHeader><DialogTitle>New Institution Cap</DialogTitle></DialogHeader>
+              <DialogHeader>
+                <DialogTitle>New Institution Cap</DialogTitle>
+                <DialogDescription>Set a shared seat limit that applies across programs within an institution.</DialogDescription>
+              </DialogHeader>
               <div className="space-y-4">
                 <div><Label>Institution</Label>
                   <Select value={instId} onValueChange={setInstId}>

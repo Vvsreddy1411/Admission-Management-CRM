@@ -21,6 +21,10 @@ function AppRoutes() {
     const { isLoggedIn, loading } = useAuth();
     useEffect(() => {
         seedDemoData().catch((error) => {
+            if (error?.message?.startsWith("Request timeout")) {
+                console.warn("Seed data skipped: backend not reachable yet");
+                return;
+            }
             console.error("Seed data failed:", error);
         });
     }, []);

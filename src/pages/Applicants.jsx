@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { useStore } from "@/hooks/useStore";
 import { KEYS, checkQuotaAvailability } from "@/lib/store";
@@ -97,7 +97,10 @@ export default function Applicants() {
       {/* View Dialog */}
       <Dialog open={!!viewApplicant} onOpenChange={() => setViewApplicant(null)}>
         <DialogContent className="max-w-lg">
-          <DialogHeader><DialogTitle>Applicant Details</DialogTitle></DialogHeader>
+          <DialogHeader>
+            <DialogTitle>Applicant Details</DialogTitle>
+            <DialogDescription>View complete profile, eligibility, and admission details for this applicant.</DialogDescription>
+          </DialogHeader>
           {viewApplicant && (<div className="space-y-3 text-sm">
               {[
                 ['Name', viewApplicant.name],
@@ -169,7 +172,10 @@ function AddApplicantDialog({ programs, onAdd }) {
     return (<Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild><Button><Plus className="w-4 h-4 mr-2"/> New Applicant</Button></DialogTrigger>
       <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
-        <DialogHeader><DialogTitle>New Applicant</DialogTitle></DialogHeader>
+        <DialogHeader>
+          <DialogTitle>New Applicant</DialogTitle>
+          <DialogDescription>Enter applicant details and assign a program and quota before creating the record.</DialogDescription>
+        </DialogHeader>
         <div className="grid grid-cols-2 gap-4">
           <div><Label>Name *</Label><Input value={form.name} onChange={e => set('name', e.target.value)}/></div>
           <div><Label>Email *</Label><Input type="email" value={form.email} onChange={e => set('email', e.target.value)}/></div>

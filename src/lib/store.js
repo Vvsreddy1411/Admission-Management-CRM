@@ -16,6 +16,11 @@ async function request(path, options) {
     }
 
     return res.json();
+  } catch (error) {
+    if (error?.name === "AbortError") {
+      throw new Error(`Request timeout for ${path}`);
+    }
+    throw error;
   } finally {
     clearTimeout(timeout);
   }

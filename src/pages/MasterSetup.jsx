@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useStore } from "@/hooks/useStore";
 import { KEYS } from "@/lib/store";
 import { Plus, Trash2, Building2, MapPin, BookOpen, GraduationCap, Calendar } from "lucide-react";
@@ -65,7 +65,10 @@ function InstitutionTab() {
             <Button size="sm"><Plus className="w-4 h-4 mr-2"/> Add Institution</Button>
           </DialogTrigger>
           <DialogContent>
-            <DialogHeader><DialogTitle>New Institution</DialogTitle></DialogHeader>
+            <DialogHeader>
+              <DialogTitle>New Institution</DialogTitle>
+              <DialogDescription>Add a top-level institution to organize campuses and programs.</DialogDescription>
+            </DialogHeader>
             <div className="space-y-4">
               <div><Label>Name</Label><Input value={name} onChange={e => setName(e.target.value)} placeholder="e.g., BRS Institute"/></div>
               <div><Label>Code</Label><Input value={code} onChange={e => setCode(e.target.value)} placeholder="e.g., BRSIT"/></div>
@@ -102,7 +105,10 @@ function CampusTab() {
         }} dialog={<Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild><Button size="sm"><Plus className="w-4 h-4 mr-2"/> Add Campus</Button></DialogTrigger>
           <DialogContent>
-            <DialogHeader><DialogTitle>New Campus</DialogTitle></DialogHeader>
+            <DialogHeader>
+              <DialogTitle>New Campus</DialogTitle>
+              <DialogDescription>Create a campus and link it to an institution.</DialogDescription>
+            </DialogHeader>
             <div className="space-y-4">
               <div><Label>Institution</Label>
                 <Select value={instId} onValueChange={setInstId}>
@@ -145,7 +151,10 @@ function DepartmentTab() {
         }} dialog={<Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild><Button size="sm"><Plus className="w-4 h-4 mr-2"/> Add Department</Button></DialogTrigger>
           <DialogContent>
-            <DialogHeader><DialogTitle>New Department</DialogTitle></DialogHeader>
+            <DialogHeader>
+              <DialogTitle>New Department</DialogTitle>
+              <DialogDescription>Create a department and link it to a campus.</DialogDescription>
+            </DialogHeader>
             <div className="space-y-4">
               <div><Label>Campus</Label>
                 <Select value={campusId} onValueChange={setCampusId}>
@@ -191,7 +200,10 @@ function ProgramTab() {
         }} dialog={<Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild><Button size="sm"><Plus className="w-4 h-4 mr-2"/> Add Program</Button></DialogTrigger>
           <DialogContent>
-            <DialogHeader><DialogTitle>New Program</DialogTitle></DialogHeader>
+            <DialogHeader>
+              <DialogTitle>New Program</DialogTitle>
+              <DialogDescription>Create a program and assign it to a department with intake details.</DialogDescription>
+            </DialogHeader>
             <div className="space-y-4">
               <div><Label>Department</Label>
                 <Select value={deptId} onValueChange={setDeptId}>
@@ -236,7 +248,10 @@ function AcademicYearTab() {
         </div>)} dialog={<Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild><Button size="sm"><Plus className="w-4 h-4 mr-2"/> Add Year</Button></DialogTrigger>
           <DialogContent>
-            <DialogHeader><DialogTitle>New Academic Year</DialogTitle></DialogHeader>
+            <DialogHeader>
+              <DialogTitle>New Academic Year</DialogTitle>
+              <DialogDescription>Add an academic year used for admissions and reporting.</DialogDescription>
+            </DialogHeader>
             <div className="space-y-4">
               <div><Label>Year</Label><Input value={year} onChange={e => setYear(e.target.value)} placeholder="2026"/></div>
               <Button onClick={handleAdd} className="w-full">Create</Button>

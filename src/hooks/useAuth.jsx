@@ -19,6 +19,8 @@ export function AuthProvider({ children }) {
       try {
         const stored = await getUserSession();
         if (mounted) setSession(stored);
+      } catch {
+        if (mounted) setSession(null);
       } finally {
         if (mounted) setLoading(false);
       }

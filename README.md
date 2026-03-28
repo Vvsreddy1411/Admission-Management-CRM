@@ -31,7 +31,7 @@ npm install
 Create `backend/.env` with the following values:
 
 ```env
-MONGODB_URI=mongodb+srv://vvsreenivasareddy12_db_user:gIjQ6Sd7VJqR4xCY@cluster0.mxvpnfu.mongodb.net/?appName=Cluster0
+MONGODB_URI=your_mongodb_connection_string
 DB_NAME=campus_connect
 PORT=4000
 ```
